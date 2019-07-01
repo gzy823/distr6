@@ -29,7 +29,7 @@ NULL
 #-------------------------------------------------------------
 #' @export
 Interval <- R6::R6Class("Interval", inherit = SetInterval)
-Interval$set("public","initialize",function(lower = -Inf, upper = Inf, type = "[]", class = "numeric"){
+Interval$set("public","initialize",function(lower = -Inf, upper = Inf, type = "[]", class = "numeric", dim = 1){
   types = c("()","(]","[]","[)")
   stopifnot(type %in% types)
   stopifnot(lower<=upper)
@@ -39,7 +39,9 @@ Interval$set("public","initialize",function(lower = -Inf, upper = Inf, type = "[
   if(lower == -Inf) lower = "-\u221E"
   if(upper == Inf) upper = "+\u221E"
   private$.setSymbol <- paste0(substr(type,1,1),lower,":", upper,substr(type,2,2))
-  private$.macType <- class
+  private$.class <- class
+  if(dim != 1)
+    private$.setSymbol <- paste0(private$.setSymbol,"^",dim)
   invisible(self)
 })
 
@@ -52,7 +54,4 @@ Interval$set("public","length",function(){
   else
     return(length(self$as.numeric()))
 })
-Interval$set("private",".macType",NULL)
-Interval$set("public","class",function(){
-  return(private$.macType)
-})
+Interval$set("private",".class",NULL)

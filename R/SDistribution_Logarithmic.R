@@ -11,7 +11,7 @@
 #'
 #' @details The distribution is implemented by interfacing the extraDistr package, the documentation for
 #' the extraDistr distribution can be found here, \code{\link[extraDistr]{LogSeries}}. Entropy
-#' is omitted as no closed-form expression could be found, decorate with CoreStatstics for a
+#' is omitted as no closed-form expression could be found, decorate with CoreStatistics for a
 #' numeric results.
 #'
 #' @name Logarithmic
@@ -31,6 +31,25 @@
 #'
 #' @inheritSection SDistribution Public Variables
 #' @inheritSection SDistribution Public Methods
+#'
+#' @examples
+#' x = Logarithmic$new(theta = 0.2)
+#'
+#' # Update parameters
+#' x$setParameterValue(list(theta = 0.3))
+#' x$parameters()
+#'
+#' # p/d/q/r
+#' x$pdf(5)
+#' x$cdf(5)
+#' x$quantile(0.42)
+#' x$rand(4)
+#'
+#' # Statistics
+#' x$mean()
+#' x$var()
+#'
+#' summary(x)
 #'
 #' @export
 NULL

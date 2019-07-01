@@ -42,14 +42,14 @@
 #'   \code{print()} \tab Print ParameterSet as data.frame. \cr
 #'   \code{update()} \tab Updates unsettable parameters with supplied update functions. \cr
 #'   \code{parameters(id, error = "warn")} \tab If id given, returns specific parameter. Otherwise returns self. \cr
-#'   \code{getParameterValue(id, error = "warn")} \tab Returns value of parameter matching gven 'id'. \cr
+#'   \code{getParameterValue(id, error = "warn")} \tab Returns value of parameter matching given 'id'. \cr
 #'   \code{setParameterValue(lst, error = "warn")} \tab Set parameters in list names with respective values. See Details. \cr
 #'   \code{rbind()} \tab Combine the rows of multiple ParameterSets. \cr
 #'   \code{as.data.table()} \tab Coerces ParameterSet to data.frame.
 #' }
 #'
 #' @section Public Method Details:
-#' Argument 'error' is passed to \code{\link[RSmisc]{stopwarn}} to determine if the code should break or if a
+#' Argument 'error' is passed to \code{stopwarn} to determine if the code should break or if a
 #' warning should be returned when an error occurs.
 #'
 #' \code{setParameterValue} takes a named list where the list names, \code{names(lst)}, should match
@@ -88,6 +88,13 @@ NULL
 
 ParameterSet <- R6::R6Class("ParameterSet")
 ParameterSet$set("private",".parameters",NULL)
+ParameterSet$set("private",".SetParameterSupport",function(lst){
+  id = names(lst)
+  support = lst[[1]]
+  which = which(unlist(private$.parameters$id) %in% id)
+  private$.parameters[which,3][[1]] <- list(support)
+  invisible(self)
+})
 ParameterSet$set("public","initialize", function(id, value, support, settable,
                                                  updateFunc = NULL, description = NULL){
 
@@ -129,7 +136,7 @@ ParameterSet$set("public","initialize", function(id, value, support, settable,
     } else
       a_update = NA
 
-    a_value = as(value[[i]], a_support$.__enclos_env__$private$.macType)
+    a_value = as(value[[i]], a_support$.__enclos_env__$private$.class)
     checkmate::assert(a_support$liesInSetInterval(a_value, all = T), combine = "and",
                       .var.name = "'value' should be between 'lower' and 'upper'")
 
@@ -193,10 +200,10 @@ ParameterSet$set("public","parameters",function(id = NULL, error = "warn"){
 
   if(!is.null(id)){
     id0 = id
-    if(length(dplyr::filter(private$.parameters, id %in% id0))==0){
+    if(length(subset(private$.parameters, id %in% id0))==0){
       return(self)
     }
-    return(dplyr::filter(private$.parameters, id %in% id0))
+    return(subset(private$.parameters, id %in% id0))
   } else {
       return(self)
   }
@@ -286,7 +293,6 @@ ParameterSet$set("public","setParameterValue",function(lst, error = "warn"){
   if(length(private$.parameters)!=0){
 
     checkmate::assertList(lst)
-
     for(i in 1:length(lst)){
       if(any(is.null(lst[[i]])) | any(is.nan(lst[[i]])))
         stop(paste(lst[[i]],"must be a number."))
@@ -294,16 +300,19 @@ ParameterSet$set("public","setParameterValue",function(lst, error = "warn"){
       aid <- names(lst)[[i]]
       value <- lst[[i]]
 
-      param <- dplyr::filter(self$as.data.table(), id == aid)
+      param <- subset(self$as.data.table(), id == aid)
 
       if(nrow(param)==0)
         stopwarn(error, sprintf("%s is not in the parameter set.",id))
 
-      value <- as(value, param$support[[1]]$.__enclos_env__$private$.macType)
+      if(param$support[[1]]$class() == "integer")
+        value <- round(value)
+
       checkmate::assert(param$support[[1]]$liesInSetInterval(value, all = TRUE))
 
       private$.parameters[unlist(private$.parameters[,"id"]) %in% param$id, "value"][[1]] <- list(value)
     }
+
 
     self$update()
 

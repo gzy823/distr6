@@ -10,7 +10,7 @@
 #' \deqn{f(x) = 1/2\beta * exp(-|x-\mu|/\beta)}
 #' where \eqn{\mu \epsilon R} is the mean parameter and \eqn{\beta > 0} is the scale parameter.
 #'
-#' @details The Laplace distribution is paramterised with mean and scale by default as this appears to
+#' @details The Laplace distribution is parameterised with mean and scale by default as this appears to
 #' be slightly more common in popular usage.
 #'
 #' @name Laplace
@@ -32,6 +32,28 @@
 #'
 #' @inheritSection SDistribution Public Variables
 #' @inheritSection SDistribution Public Methods
+#'
+#' @examples
+#' Laplace$new(scale = 2)
+#' Laplace$new(var = 4)
+#'
+#' x = Laplace$new(verbose = TRUE) # Default is mean = 0, scale = 1
+#'
+#' # Update parameters
+#' x$setParameterValue(list(var = 2)) # When any parameter is updated, all others are too!
+#' x$parameters()
+#'
+#' # p/d/q/r
+#' x$pdf(5)
+#' x$cdf(5)
+#' x$quantile(0.42)
+#' x$rand(4)
+#'
+#' # Statistics
+#' x$mean()
+#' x$var()
+#'
+#' summary(x)
 #'
 #' @export
 NULL

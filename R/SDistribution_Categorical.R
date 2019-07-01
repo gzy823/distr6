@@ -5,7 +5,7 @@
 #' @title Categorical Distribution
 #'
 #' @description Mathematical and statistical functions for the Categorical distribution parameterised
-#' with a given support Set, probabilites and defined by the pmf,
+#' with a given support Set, probabilities and defined by the pmf,
 #' \deqn{f(X_1 = x_i) = p_i}
 #' where \eqn{p_i, i = 1,\ldots,k; \sum p_i = 1} are the probabilities for each of the \eqn{x_1,...,x_n}
 #' elements in the support set.
@@ -36,10 +36,26 @@
 #' @inheritSection SDistribution Public Variables
 #' @inheritSection SDistribution Public Methods
 #'
+#'
 #' @examples
+#' # Note probabilities are automatically normalised
 #' x = Categorical$new("Bapple","Banana",2,probs=c(0.2,0.4,1))
+#'
+#' # Only the probabilities can be changed and must the same length as in construction
+#' x$setParameterValue(list(probs = c(0.1,0.2,0.7)))
+#'
+#' # p/d/q/r
 #' x$pdf(c("Bapple", "Carrot", 1, 2))
+#' x$cdf("Banana") # Assumes ordered in construction
 #' x$rand(10)
+#'
+#' # Statistics
+#' x$mode()
+#'
+#' summary(x)
+#'
+#' @examples
+#'
 #'
 #' @export
 NULL

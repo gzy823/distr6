@@ -5,11 +5,18 @@
 \title{Lognormal Distribution}
 \description{
 Mathematical and statistical functions for the Lognormal distribution parameterised
-with mean and standard deviation of the variable's natural logarithm.
+with mean, sd, var, prec on the log or natural scale. The logmean/logvar parameterisation is defined
+by the pdf,
+\deqn{exp(-(log(x)-\mu)^2/2\sigma^2)/(x\sigma\sqrt(2\pi))}
+where \eqn{\mu \epsilon R} is the log-mean and \eqn{\sigma > 0} is the log-standard deviation.
+}
+\details{
+\code{cf} is omitted as no closed form analytic expression could be found. The \code{mgf} is
+included but returns NaN as it is not defined.
 }
 \section{Constructor}{
  Lognormal$new(meanlog = 0, varlog = 1, sdlog = NULL, preclog = NULL,
-                          mean = NULL, var = NULL, sd = NULL, prec = NULL,
+                          mean = 1, var = NULL, sd = NULL, prec = NULL,
                           decorators = NULL, verbose = FALSE)
 }
 
@@ -33,9 +40,7 @@ with mean and standard deviation of the variable's natural logarithm.
 \section{Constructor Details}{
  The Lognormal distribution can either be parameterised with variance,
 standard deviation or precision on the natural or log scale.
-If none are provided then varlog parameterisation is used with varlog = 1.
-If multiple are provided then parameterisation takes the hierarchy: varlog, sdlog, preclog,
-var, sd, prec.
+If none are provided then meanlog/varlog parameterisation is used with varlog = 1, meanlog = 0.
 sdlog is defined by
 \deqn{sdlog = varlog^2}
 preclog is defined by
@@ -79,13 +84,13 @@ and \eqn{sd}, \eqn{prec} defined analogously.
   \tab \cr \tab \cr \tab \cr
 
   \strong{Statistical Methods} \tab \strong{Link} \cr
-  \code{pdf(x1, ..., log = FALSE)} \tab \code{\link{pdf}} \cr
-  \code{cdf(x1, ..., lower.tail = TRUE, log.p = FALSE)} \tab \code{\link{cdf}}\cr
-  \code{quantile(p, ..., lower.tail = TRUE, log.p = FALSE)} \tab \code{\link{quantile.Distribution}} \cr
-  \code{rand(n)} \tab \code{\link{rand}} \cr
+  \code{pdf(x1, ..., log = FALSE, simplify = TRUE)} \tab \code{\link{pdf}} \cr
+  \code{cdf(x1, ..., lower.tail = TRUE, log.p = FALSE, simplify = TRUE)} \tab \code{\link{cdf}}\cr
+  \code{quantile(p, ..., lower.tail = TRUE, log.p = FALSE, simplify = TRUE)} \tab \code{\link{quantile.Distribution}} \cr
+  \code{rand(n, simplify = TRUE)} \tab \code{\link{rand}} \cr
   \code{mean()} \tab \code{\link{mean.Distribution}} \cr
   \code{var()} \tab \code{\link{var}} \cr
-  \code{cov()} \tab \code{\link{cov}} \cr
+  \code{prec()} \tab \code{\link{prec}} \cr
   \code{cor()} \tab \code{\link{cor}} \cr
   \code{skewness()} \tab \code{\link{skewness}} \cr
   \code{kurtosis(excess = TRUE)} \tab \code{\link{kurtosis}} \cr
@@ -122,3 +127,32 @@ and \eqn{sd}, \eqn{prec} defined analogously.
   }
 }
 
+\examples{
+# Many parameterisations are possible
+Lognormal$new(var = 2, mean = 1)
+Lognormal$new(meanlog = 2, preclog = 5)
+Lognormal$new(meanlog = 4, sd = 2) # Note parameters must be on same scale (log or natural)
+
+x <- Lognormal$new(verbose = TRUE) # meanlog = 0, sdlog = 1 default
+
+# Update parameters
+x$setParameterValue(list(meanlog = 3)) # When any parameter is updated, all others are too!
+x$parameters()
+
+# But you can only set parameters on the same scale, the below has no effect
+x$setParameterValue(list(sd = 3))
+x$setParameterValue(list(sdlog = 3)) # But this does
+
+# p/d/q/r
+x$pdf(5)
+x$cdf(5)
+x$quantile(0.42)
+x$rand(4)
+
+# Statistics
+x$mean()
+x$var()
+
+summary(x)
+
+}

@@ -14,6 +14,7 @@
 #'    \code{type} \tab character \tab Interval type, one of (), (], [), []. \cr
 #'    \code{lower} \tab numeric \tab Lower limit of set/interval. \cr
 #'    \code{upper} \tab numeric \tab Upper limit of set/interval. \cr
+#'    \code{class} \tab character \tab Atomic class, one of "numeric" or "integer". \cr
 #'    \code{dimension} \tab integer \tab Dimension of set/interval.
 #'}
 #'
@@ -23,6 +24,7 @@
 #' \code{lower} \tab numeric \tab Lower limit of set/interval. \cr
 #' \code{upper} \tab numeric \tab Upper limit of set/interval. \cr
 #' \code{type} \tab  character \tab Closed/open interval type. \cr
+#' \code{class} \tab  character \tab Class of set/interval. \cr
 #' \code{dimension} \tab integer \tab Dimension of set/interval. \cr
 #' \code{max} \tab  numeric \tab Maximum of set/interval. \cr
 #' \code{min} \tab  numeric \tab Minimum of set/interval. \cr
@@ -48,12 +50,13 @@ NULL
 # SetInterval Definition
 #-------------------------------------------------------------
 SetInterval <- R6::R6Class("SetInterval")
-SetInterval$set("public","initialize",function(symbol, lower, upper, type, dimension){
+SetInterval$set("public","initialize",function(symbol, lower, upper, type, class = "numeric", dimension){
   private$.lower = lower
   private$.upper = upper
   private$.type = type
   private$.dimension = as.integer(dimension)
   private$.setSymbol = symbol
+  private$.class = class
   invisible(self)
 })
 SetInterval$set("public","type",function(){
@@ -84,14 +87,26 @@ SetInterval$set("public","getSymbol",function() return(private$.setSymbol))
 SetInterval$set("public","print",function(){
   print(self$getSymbol())
 })
+SetInterval$set("public","class",function(){
+  return(private$.class)
+})
 SetInterval$set("public","liesInSetInterval",function(x, all = FALSE, bound = FALSE){
   ret = rep(FALSE, length(x))
-  if(bound)
-    #ret[(x >= self$inf() & x <= self$sup() & inherits(x, self$class()))] = TRUE
-    ret[(x >= self$inf() & x <= self$sup())] = TRUE
-  else
-    #ret[(x >= self$min() & x <= self$max() & inherits(x, self$class()))] = TRUE
-    ret[(x >= self$min() & x <= self$max())] = TRUE
+
+  if(self$class() == "integer")
+    class_test = sapply(x, checkmate::testIntegerish)
+  else if(self$class() == "numeric")
+    class_test = sapply(x, checkmate::testNumeric)
+
+  if(bound & self$class()=="integer")
+    ret[(x >= self$inf() & x <= self$sup() & class_test)] = TRUE
+  else if(!bound & self$class()=="integer")
+    ret[(x >= self$min() & x <= self$max() & class_test)] = TRUE
+  else if(bound & self$class()=="numeric")
+    ret[(x >= self$inf() & x <= self$sup() & class_test)] = TRUE
+  else if(!bound & self$class()=="numeric")
+    ret[(x >= self$min() & x <= self$max() & class_test)] = TRUE
+
   if(all)
     return(all(ret))
   else
@@ -101,6 +116,6 @@ SetInterval$set("public","liesInSetInterval",function(x, all = FALSE, bound = FA
 SetInterval$set("private",".lower",NULL)
 SetInterval$set("private",".upper",NULL)
 SetInterval$set("private",".type",NULL)
-SetInterval$set("private",".macType","numeric")
+SetInterval$set("private",".class",NULL)
 SetInterval$set("private",".dimension",NULL)
 SetInterval$set("private",".setSymbol",NULL)

@@ -12,7 +12,7 @@ where \eqn{0 < theta < 1} is the theta parameter.
 \details{
 The distribution is implemented by interfacing the extraDistr package, the documentation for
 the extraDistr distribution can be found here, \code{\link[extraDistr]{LogSeries}}. Entropy
-is omitted as no closed-form expression could be found, decorate with CoreStatstics for a
+is omitted as no closed-form expression could be found, decorate with CoreStatistics for a
 numeric results.
 }
 \section{Constructor}{
@@ -68,13 +68,13 @@ theta = 0.5.
   \tab \cr \tab \cr \tab \cr
 
   \strong{Statistical Methods} \tab \strong{Link} \cr
-  \code{pdf(x1, ..., log = FALSE)} \tab \code{\link{pdf}} \cr
-  \code{cdf(x1, ..., lower.tail = TRUE, log.p = FALSE)} \tab \code{\link{cdf}}\cr
-  \code{quantile(p, ..., lower.tail = TRUE, log.p = FALSE)} \tab \code{\link{quantile.Distribution}} \cr
-  \code{rand(n)} \tab \code{\link{rand}} \cr
+  \code{pdf(x1, ..., log = FALSE, simplify = TRUE)} \tab \code{\link{pdf}} \cr
+  \code{cdf(x1, ..., lower.tail = TRUE, log.p = FALSE, simplify = TRUE)} \tab \code{\link{cdf}}\cr
+  \code{quantile(p, ..., lower.tail = TRUE, log.p = FALSE, simplify = TRUE)} \tab \code{\link{quantile.Distribution}} \cr
+  \code{rand(n, simplify = TRUE)} \tab \code{\link{rand}} \cr
   \code{mean()} \tab \code{\link{mean.Distribution}} \cr
   \code{var()} \tab \code{\link{var}} \cr
-  \code{cov()} \tab \code{\link{cov}} \cr
+  \code{prec()} \tab \code{\link{prec}} \cr
   \code{cor()} \tab \code{\link{cor}} \cr
   \code{skewness()} \tab \code{\link{skewness}} \cr
   \code{kurtosis(excess = TRUE)} \tab \code{\link{kurtosis}} \cr
@@ -111,3 +111,23 @@ theta = 0.5.
   }
 }
 
+\examples{
+x = Logarithmic$new(theta = 0.2)
+
+# Update parameters
+x$setParameterValue(list(theta = 0.3))
+x$parameters()
+
+# p/d/q/r
+x$pdf(5)
+x$cdf(5)
+x$quantile(0.42)
+x$rand(4)
+
+# Statistics
+x$mean()
+x$var()
+
+summary(x)
+
+}
